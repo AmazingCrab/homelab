@@ -1,6 +1,6 @@
 # Hardware
-Leonovo Thinkpad x230, CPU 3ra Gen, i5-320M TPD 35W, Idle 5-12W ,16GB de RAM, 256GB SATA SSD, 1 pto Ethernet 100/1000Mbps, 1 pto wifi               802.11a/b/g/n
-Se eligio por su bajo consumo y robustez.
+- Leonovo Thinkpad x230, CPU 3ra Gen, i5-320M TPD 35W, Idle 5-12W ,16GB de RAM, 256GB SATA SSD, 1 puerto Ethernet 100/1000Mbps, 1 puerto wifi 802.11a/b/g/n
+- Se eligio por su bajo consumo y robustez.
 
 ## Proxmox installer
 (Listamos opciones)
@@ -47,7 +47,7 @@ options zfs zfs_arc_max=4294967296
 
 ## Tweak personalizado para apagar los monitores
 
-Agregamos pagado automatico luego de 1min a  tty1
+Agregamos apagado automatico luego de 1min a  tty1
 
 bash
 ```
@@ -64,6 +64,11 @@ bash
 ```
 systemctl daemon-reload
 systemctl restart getty@tty1
+```
+### Revertir desde consola
+bash
+```
+setterm --blank 0 --powerdown 
 ```
 
 ## 1. Deshabilitar los repositorios Enterprise:
