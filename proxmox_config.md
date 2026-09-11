@@ -1,10 +1,10 @@
 # Hardware
-- Leonovo Thinkpad x230, CPU 3ra Gen, i5-320M TPD 35W, Idle 5-12W ,16GB de RAM, 256GB SATA SSD, 1 puerto Ethernet 100/1000Mbps, 1 puerto wifi 802.11a/b/g/n
-- Se eligio por su bajo consumo y robustez.
+- Lenovo Thinkpad x230, CPU 3ra Gen, i5-320M TPD 35W, Idle 5-12W ,16GB de RAM, 256GB SATA SSD, 1 puerto Ethernet 100/1000Mbps, 1 puerto wifi 802.11a/b/g/n
+- Se eligió por su bajo consumo y robustez.
 
 ## Proxmox installer
 (Listamos opciones)
-- zfs -> ( xq tengo un solo disco, permite precachear antes de mover info y es mas fiable)
+- zfs -> ( xq tengo un solo disco, permite pre-cachear antes de mover info y es mas fiable)
 - country,
 - timezone,
 - keymap,
@@ -14,7 +14,7 @@
 
 ## Firewall pve
 Nota: no asignamos source porque usamos la lan ethernet,
-luego la wlan y quiza un vlan de zerotier
+luego la wlan.
 
 En pve, Firewall:
 
@@ -308,4 +308,16 @@ nmcli connection show
 ip route 
 # por mas que la metrica sea mayor en WAN, como vbr0 (nuestro puente ethernet) no tiene gateway, el tráfico a internet saldrá por la WAN sin competir con la metrica
 ```
+## Nota Importante
+El próximo paso planeado era utilizar zerotier, es un proyecto opensource que se puede instalar en un server vps y permite crear una red privada cifrda extremo a extremo entre varios equipos con conexión a internet. Además permite otorgar permiso de conexión entre equipos de la red.
+La idea es utilizarlo para conectar nuestro servidor proxmox y la pc que lo administra y agregar una capa de seguridad adicional.
+Para no contratar un server vps, utilizaré la versión web gratuita, disponible en https://www.zerotier.com/ que me da los recursos suficientes para nuestro homelab.
+
+Zerotier es  un daemon que se instala en cada pc que pertenece a la red virtual, si lo utilizamos en un contenedor LXC, no tendremos control total sobre la placa de red virtual que este software crea, ya que queda el kernel  y sus controladores por fuera y el demon dentro del controlador separados, es por esta razón que usaré una VM completa con Alpine Linux para instalarlo y asi si hacer uso de esa placa virtual para configurarla dentro de la VM y con en nuestra VM router que tenemos que crear.
+
+Entonces, con nuestro server dns proxy y router presentes en nuestro diseño, serían las próximas 3 piezas claves a seguir construyendo.
+
+Por una cuestión de no tener dependencias, tenemos que construir nuestro router firewall de Iptables primero dentro de un contenedor LXC, luego nuestro server DNS, luego zerotier y continuaremos con el resto del diagrama.
+
+
 
