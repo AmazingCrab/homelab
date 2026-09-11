@@ -320,5 +320,31 @@ Entonces, con nuestro server dns proxy y router presentes en nuestro diseño, se
 Por una cuestión de no tener dependencias, tenemos que construir nuestro router firewall de Iptables primero dentro de un contenedor LXC, luego nuestro server DNS, luego zerotier y continuaremos con el resto del diagrama.
 Además, para router, utilizaremos lo mas básico a modo de práctica para el homelab, netfilter administrado por iptables.
 
+## Diagrama: pasos a seguir
+
+1. Router LXC          --> con sus placas de subredes y wan
+        
+2. DNS LXC             --> lo usaremos luego con los server de aplicación, NTP y NGNIX
+        
+3. VM ZeroTier         --> Acceso remoto a Proxmox, y los servicios de aplicación        
+
+4. NTP Server          --> Time server. Necesita el DNS
+        
+5. NFS/SMB Server      --> Almacenamiento y backups. Necesita el DNS        
+
+6. Prometheus/Grafana  --> Monitoreo. Necesita el DNS y los servicios        
+
+7. Forgejo             --> Git autoalojado. Necesita el DNS (usaré el almacenamiento en el disco de la VM, no externo)
+        
+8. NGINX               --> Reverse proxy. Necesita el DNS y los servicios
+
+NOTA: la idea de tener el DNS Server y ngnix configurado usando los nombres de dominios, esto me va a permitir migrar servicios desacoplando del hardware cada uno.
+Por ejemplo, en el nuevo server:
+- instalo proxmox, conecto el nuevo server con zerotier a la red del server viejo.
+- Configuro el nuevo server ara que usa el NDS LXC del server viejo.
+- Clono el contenedor del servicio que quiero tener en el nuevo server y le asigno una nueva IP.
+- Desactivo el viejo contenedor del servicio que cloné. 
+Ahora al tener Ngnix instalado configurado para buscar un dominio y no una IP voy a poder acceder al nuevo contenedor sin contratiempos de forma inmediata.
+
 
 
