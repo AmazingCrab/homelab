@@ -313,11 +313,12 @@ El próximo paso planeado era utilizar zerotier, es un proyecto opensource que s
 La idea es utilizarlo para conectar nuestro servidor proxmox y la pc que lo administra y agregar una capa de seguridad adicional.
 Para no contratar un server vps, utilizaré la versión web gratuita, disponible en https://www.zerotier.com/ que me da los recursos suficientes para nuestro homelab.
 
-Zerotier es  un daemon que se instala en cada pc que pertenece a la red virtual, si lo utilizamos en un contenedor LXC, no tendremos control total sobre la placa de red virtual que este software crea, ya que queda el kernel  y sus controladores por fuera y el demon dentro del controlador separados, es por esta razón que usaré una VM completa con Alpine Linux para instalarlo y asi si hacer uso de esa placa virtual para configurarla dentro de la VM y con en nuestra VM router que tenemos que crear.
+Zerotier trabaja también con un daemon que se instala en cada pc que queremos que pertenezca a la red virtual, si lo utilizamos en un contenedor LXC dentro de proxmox, no tendremos control total sobre la placa de red virtual que este software crea, ya que queda el kernel y sus controladores por fuera del contenedor y el daemon dentro del contenedor no puedo modificar los controladores que necesitamos para poder manipularlos a gusto y configurar. Es por esta razón que usaré una VM completa con Alpine Linux para instalarlo y asi si hacer uso de esa placa virtual que el daemon crea para configurarla dentro de la VM y posteriormente con nuestra VM router de iptables que tenemos que crear.
 
 Entonces, con nuestro server dns proxy y router presentes en nuestro diseño, serían las próximas 3 piezas claves a seguir construyendo.
 
 Por una cuestión de no tener dependencias, tenemos que construir nuestro router firewall de Iptables primero dentro de un contenedor LXC, luego nuestro server DNS, luego zerotier y continuaremos con el resto del diagrama.
+Además, para router, utilizaremos lo mas básico a modo de práctica para el homelab, netfilter administrado por iptables.
 
 
 
