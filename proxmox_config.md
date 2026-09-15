@@ -531,5 +531,17 @@ iface vmbr4 inet manual
 
 source /etc/network/interfaces.d/*
 ```
+## Probamos la red en el router
+- Iniciamos el contenedor
+  
+bash
+```
+# -br brief --> resultados unificados
+ip a -br
+# Vemos que solo la Wan tiene Gateway
+ip route
+# chequemos la conectividad con Internet
+dig google
+```
 
 
