@@ -107,6 +107,8 @@ wpa_passphrase "SSID" "Password" # genero HASH
 
 edit
 ```
+# "/etc/wpa_supplicant/wpa_supplicant.conf"
+
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
 country=ES
@@ -128,7 +130,7 @@ ip a | grep "wlp"# buscamos el nombre de la placa de red wifi (wlp3s0)
 ```
 edit
 ```
-# "/etc/network/interface
+# "/etc/network/interface"
 #auto inicia la interfaz
 auto lo
 # define la ip para los servicios internos 127.0.0.1
@@ -218,7 +220,7 @@ apt install -y network-manager
 ```
 edit
 ```
-# /etc/network/interfaces
+# "/etc/network/interfaces"
 
 auto lo
 iface lo inet loopback
@@ -271,7 +273,7 @@ bash
 ```
 systemctl restart NetworkManager
 # Verificamos que esté "UP"
-ip link | grep wl
+ip a | grep wl
 ```
 
 NOTA: Usamos network-manager para conectar la placa wifi y ifupdown2 para los bridges de las VM's con su config en "/etc/network/interfaces"
@@ -346,5 +348,56 @@ Por ejemplo, en el nuevo server:
 - Desactivo el viejo contenedor del servicio que cloné. 
 Ahora al tener Ngnix instalado configurado para buscar un dominio y no una IP voy a poder acceder al nuevo contenedor sin contratiempos de forma inmediata.
 
+## Cambio Inesperado de ISP!
+- Desconectamos la red Wifi
+- Desactivamos el firewall  del datacenter y del server pve antes
+- No tenemos acceso al router, y tenemos ip variable
+- La red nueva del router tiene formato 192.168.18.0/24
+- Cambiamos en proxmox vmbr0 (vinculada a la red (ethernet nic1) de 192.168.0.66 a 192.168.18.66
 
+edit
+```
+# "/etc/network/interfaces"
 
+# en vmbr0 cambiamos address
+address 192.168.18.66/24
+```
+edit
+```
+# "/etc/hosts"
+
+# cambiamos la dire de pve
+#192.168.1.66
+192.168.18.66
+# no haremo más con esto, luego utilizaremos el server DNS en una VM
+```
+bash
+```
+# Borramos la antigua conexión
+rm /etc/NetworkManager/system-connections/Gazzo-5GHz.nmconnection
+# Creamos la nueva conexión
+nmcli device wifi connect  "NewWIFI" password "NewPass"
+systemctl restart NetworkManager
+# chequeo que este UP y funcionando
+ip a | grep wl
+dig google
+
+# Asignamos la IP fija, puerta de enlace y DNS
+nmcli connection modify "NewWIFI" ipv4.addresses 192.168.18.50/24
+nmcli connection modify "NewWIFI" ipv4.gateway 192.168.18.1
+nmcli connection modify "NewWIFI" ipv4.dns "9.9.9.9 1.1.1.1"
+# Aseguramos que la conexión se active automáticamente
+nmcli connection modify "NewWIFI" connection.autoconnect yes
+# Necesita primero una ip para poder cambiar el métodoo, las pusimos anteriormente
+nmcli connection modify "NewWIFI" ipv4.method manual
+
+systemctl restart NetworkManager
+# chequeo que este UP y funcionando
+ip a | grep wl
+dig google
+```
+### Desde la GUI de proxmox:
+- Configuramos las reglas del firewall para nmpc, ssh y admin de proxmox (pto:8006) con la IP nueva de la PC admin y cambiamos la del host.
+- Utilizamos la IP de la red local 192.168.18.16
+
+## Retomaremos con el próximo paso, la creación del DNS Server
