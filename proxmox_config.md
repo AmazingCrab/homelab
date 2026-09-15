@@ -401,3 +401,68 @@ dig google
 - Utilizamos la IP de la red local 192.168.18.16
 
 ## Retomaremos con el próximo paso, la creación del DNS Server
+
+### Creamos un contenedor LXC:
+
+NOTA: Para este contenedor, utilizaremos el template de Debian 12, ya que permite usar iptables sin una capa de abstracción encima, es super estable, y bien documentado.
+ASignamos 4Gb de disco porque Debian utiliza 1,5 dejando espacio para actualizaciones y logs, probaremos con 512Mb de ram inicialmente y 1 core.
+
+Proxmox GUI
+```
+- Hostname: router-iptables
+- ID : 100
+- Template Debian 12 (La bajamos desde la GUI, en nuestro nodo local (pve))
+- Disco 4Gb
+- CPU : 1 core
+- Memoria: 512Mb
+- Sin privilegios
+- Con Anidamientos (necesita simular /sys y /proc, para administrar sus int virtuales y propios procesos)
+```
+
+- Arquitectura de red para el router es:
+
+    eth0 (WAN)  --> vmbr0 --> 192.168.18.2/24, gateway 192.168.18.1
+
+    eth1 (LAN1) --> vmbr1 --> 10.0.10.1/24
+
+    eth2 (LAN2) --> vmbr2 --> 10.0.20.1/24
+
+    eth3 (LAN3) --> vmbr3 --> 10.0.30.1/24
+
+    eth4 (LAN4) --> vmbr4 --> 10.0.40.1/24
+
+- Creamos vbmr2, vbmr3 y vbmr4
+  
+Proxmox GUI
+```
+- Desde el nodo pve, System -> Network - Create Linux Bridge
+
+vbmr2 --> Comment --> red de Servicios 10.0.20.0/24
+vbmr3 --> Comment --> red de monitoreo 10.0.30.0/24
+vbmr4 --> Comment --> red de ngnix 10.0.40.0/24
+
+- Agregamos eth0 cuando creamos el contenedor.
+- Agregamos eth1,eth2,eth3,eth4 desde --> CT100 --> network Device
+- ASociamos cada uno con el bridge que le coreesponde, 2,3 y 4 respectivamente
+- La GUI muestra error: bridge"vmbr2" dont exist (500)
+Eror 500, error de comunicaciópn en el servidor, es porque no se aplicaron los cambios en la creación de bridges en el nodo pve, aplicamos para que se aqliquen y la api se pueda comunicar con el host.
+- Completo la tarea con: WARN: missing 'source /etc/network/interfaces.d/sdn' directive for SDN support!
+```
+
+### En el nodo pve agregamos
+
+edit
+```
+# "/etc/network/interfaces"
+# Debajo del todo agregamos:
+source /etc/network/interfaces.d/*
+```
+
+bash
+```
+# Aplicamos
+ifreload -a
+# Aprovechamos a chequear los bridge
+ip a | grep "vmbr"
+```
+
