@@ -468,7 +468,7 @@ ifreload -a
 # Aprovechamos a chequear los bridge
 ip a | grep "vmbr"
 ```
-## A modo informativo, mostramos como quedo nuestro archivo de configuración de red del nodo pve y agregamos una breve descripción del adaptador wifi
+## Actualización de /etc/network/interfaces luego de los cambios
 
 edit
 ```
