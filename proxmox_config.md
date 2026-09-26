@@ -532,7 +532,14 @@ iface vmbr4 inet manual
 source /etc/network/interfaces.d/*
 ```
 ## Probamos la red en el router
+
 - Iniciamos el contenedor
+
+Proxmox GUI
+```
+# En el contenedor 100 (router)
+- En Opciones -> Marcamos encender al iniciar
+```
   
 bash
 ```
@@ -543,5 +550,7 @@ ip route
 # chequemos la conectividad con Internet
 dig google
 ```
+
+## Configurar Router - (Iptables)
 
 
